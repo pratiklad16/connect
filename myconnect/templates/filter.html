@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter Form</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Multiselect CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/1.1.0/bootstrap-multiselect.css" rel="stylesheet">
+    <style>
+        .array-field {
+            margin-bottom: 15px;
+        }
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Filter Query</h2>
+    <form method="POST" action="">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="level">Level</label>
+            <input type="number" class="form-control" id="level" name="level" max="3" required>
+        </div>
+
+        <div class="form-group">
+            <label for="city">City</label>
+            <select id="city" class="form-control" name="city[]" multiple="multiple">
+                <option value="pune">pune</option>
+                <option value="hyderabad">hyderabad</option>
+                <option value="banglore">Bengalore</option>
+                <option value="delhi">Delhi</option>
+                <option value="chennai">Chennai</option>
+            </select>
+            <button type="button" class="btn btn-secondary mt-2" onclick="addSelectedItems('city')">Add City</button>
+            <ul class="list-group mt-2" id="city-list"></ul>
+        </div>
+
+        <div class="form-group">
+            <label for="domain">Interest</label>
+            <select id="domain" name="domain[]" multiple="multiple" class="form-control">
+                <option value="software development">software development</option>
+                <option value="web development">web development</option>
+                <option value="android development">android development</option>
+                <option value="data science">data science</option>
+            </select>
+            <button type="button" class="btn btn-secondary mt-2" onclick="addSelectedItems('domain')">Add Selected domains</button>
+            <ul class="list-group mt-2" id="domain-list"></ul>
+        </div>
+
+        <div class="form-group">
+            <label for="interest">Interest</label>
+            <select id="interest" name="interest[]" multiple="multiple" class="form-control">
+                <option value="artificial intelligence">Artificial Intelligence</option>
+                <option value="cloud computing">cloud computing</option>
+                <option value="Internet of things">Internet of things</option>
+                <option value="database management">database management</option>
+            </select>
+            <button type="button" class="btn btn-secondary mt-2" onclick="addSelectedItems('interest')">Add Selected Interests</button>
+            <ul class="list-group mt-2" id="interest-list"></ul>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<!-- Full jQuery, not the slim version -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Bootstrap Multiselect JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/1.1.0/bootstrap-multiselect.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#city').multiselect({
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            filterPlaceholder: 'Search cities...',
+            maxHeight: 300
+        });
+
+        $('#interest').multiselect({
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            filterPlaceholder: 'Search interests...',
+            maxHeight: 300
+        });
+    });
+
+    function addSelectedItems(field) {
+        const select = document.getElementById(field);
+        const list = document.getElementById(field + '-list');
+        const selectedOptions = Array.from(select.selectedOptions);
+
+        selectedOptions.forEach(option => {
+            const value = option.value;
+            const text = option.text;
+
+            // Check if item is already in the list
+            if (!Array.from(list.children).some(li => li.textContent === text)) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = text;
+
+                // Add remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove';
+                removeBtn.className = 'btn btn-sm btn-danger';
+                removeBtn.onclick = () => {
+                    list.removeChild(li);
+                    document.querySelector(`#${field} option[value="${value}"]`).selected = false;
+                };
+
+                li.appendChild(removeBtn);
+                list.appendChild(li);
+
+                // Create hidden input to send with form
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = field + '[]';
+                hiddenInput.value = value;
+                list.appendChild(hiddenInput);
+            }
+        });
+
+        // Clear selection
+        select.value = '';
+    }
+</script>
+
+</body>
+</html>
